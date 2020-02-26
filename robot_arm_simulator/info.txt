@@ -1,0 +1,21 @@
+conda activate poppy2
+
+hosted web simulator:
+http://simu.poppy-project.org/poppy-ergo-jr/
+
+https://github.com/poppy-project/poppy-simu
+cd ~/master_thesis/robot_arm_simulator/poppy-simu-gh-pages
+python -m SimpleHTTPServer
+-> access web-simulator on localhost:8000 and set the correct port of the controlling instance
+
+REST API in api.txt
+
+via python:
+from pypot.creatures import PoppyErgoJr
+robot = PoppyErgoJr(simulator='poppy-simu', http_port=8088)
+robot.dance.start()
+
+
+https://github.com/poppy-project/pypot/blob/master/REST-APIs.md
+
+https://docs.poppy-project.org/en/getting-started/visualize.html
