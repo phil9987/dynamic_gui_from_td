@@ -1,0 +1,38 @@
+{
+    "@context": [
+        "https://www.w3.org/2019/wot/td/v1"
+        ],
+    "id": "robotarm1",
+    "title": "MyRobotArm",
+    "@type": "example:robotArm",
+    "properties": {
+        "motor1": {
+            "@type": "example:RobotArmMotor1",
+            "type": "number",
+            "forms": [{
+                "href": "https://robotarm.example.com/motor1"
+            }]
+        },
+        "motor2": {
+            "@type": "example:RobotArmMotor2",
+            "type": "number",
+            "forms": [{
+                "href": "https://robotarm.example.com/motor2"
+            }]
+        },
+        "motor3": {
+            "@type": "example:RobotArmMotor3",
+            "type": "number",
+            "forms": [{
+                "href": "https://robotarm.example.com/motor3"
+            }]
+        },
+        "motor4": {
+            "@type": "example:RobotArmMotor4",
+            "type": "number",
+            "forms": [{
+                "href": "https://robotarm.example.com/motor4"
+            }]
+        }
+    }
+}

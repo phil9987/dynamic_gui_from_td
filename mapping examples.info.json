@@ -1,0 +1,32 @@
+# Potential mappings
+
+## MyLightThing
+{
+    "targetType": "saref:LevelControlFunction",
+    "title": "dim",
+    "triggerButton": false,
+    "mapsToUiElements": ["ordered_domain_fixed_range_input"]
+}
+
+## Roller shutter thing
+{
+    "targetType": "example:RollerShutter",
+    "title": "Move up/down",
+    "triggerButton": false,
+    "mapsToUiElements": ["move_input"],
+    "aggregatesApis": ["example:RollerShutterUp", "example:RollerShutterDown"]
+}
+
+## Robotarm Poppy Ergo Jr
+{
+    "targetType": "example:RobotArmErgoJr",
+    "title": "set target coordinates x/y/z",
+    "triggerButton": true,
+    "mapsToUiElements": ["general_data_input"],
+    "aggregatesApis": [
+        "example:RobotArmErgoJrJoint1",
+        "example:RobotArmErgoJrJoint2",
+        "example:RobotArmErgoJrJoint3",
+        "example:RobotArmErgoJrJoint4"],
+    "usesAggregationFunction": "http://example.robot.helperfunctions/inversekinematics/poppy/ergojr/ik"
+}
