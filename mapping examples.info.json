@@ -48,7 +48,8 @@ mapping defines from which elements / apis to which elements / apis the mapping 
 
 ## Roller shutter thing
 {
-    "targetType": "example:RollerShutter",
+    "targetTypes": ["example:RollerShutter"],
+    "typeMappings": [{"up": ["example:RollerShutterUp", "saref:RollerShutterUp"]}, {"down": ["example:RollerShutterDown", "saref:RollerShutterDown"]}],
     "title": "Move up/down",
     "triggerButton": false,
     "mapsToUiElements": [
@@ -59,7 +60,7 @@ mapping defines from which elements / apis to which elements / apis the mapping 
     ],
     "mapping": {
         "from": ["move_input:back", "move_input:forward"],
-        "to": ["example:RollerShutterUp", "example:RollerShutterDown"],
+        "to": ["up", "down"],
     }
 }
 
