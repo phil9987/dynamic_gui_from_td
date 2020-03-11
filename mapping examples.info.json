@@ -5,7 +5,16 @@
     "targetType": "saref:LevelControlFunction",
     "title": "dim",
     "triggerButton": false,
-    "mapsToUiElements": ["ordered_domain_fixed_range_input"]
+    "mapsToUiElements": [
+        {
+            "uiElement": "ordered_domain_fixed_range_input",
+            "id": "dimmer"
+        }
+    ],
+    "mapping": {
+        "from": ["dimmer"],
+        "to": ["example:dimTarget"]
+    }
 }
 
 ## Roller shutter thing
@@ -13,8 +22,16 @@
     "targetType": "example:RollerShutter",
     "title": "Move up/down",
     "triggerButton": false,
-    "mapsToUiElements": ["move_input"],
-    "aggregatesApis": ["example:RollerShutterUp", "example:RollerShutterDown"]
+    "mapsToUiElements": [
+        {
+            "uiElement":"move_input",
+            "id": "moveUpDown"
+        }
+    ],
+    "mapping": {
+        "from": ["example:RollerShutterUp", "example:RollerShutterDown"],
+        "to": ["move_input:back", "move_input:forward"]
+    }
 }
 
 ## Robotarm Poppy Ergo Jr
@@ -22,11 +39,30 @@
     "targetType": "example:RobotArmErgoJr",
     "title": "set target coordinates x/y/z",
     "triggerButton": true,
-    "mapsToUiElements": ["general_data_input"],
-    "aggregatesApis": [
-        "example:RobotArmErgoJrJoint1",
-        "example:RobotArmErgoJrJoint2",
-        "example:RobotArmErgoJrJoint3",
-        "example:RobotArmErgoJrJoint4"],
-    "usesAggregationFunction": "http://example.robot.helperfunctions/inversekinematics/poppy/ergojr/ik"
+    "mapsToUiElements": [
+        {
+            "uiElement": "ordered_domain_input",
+            "id": "x_input"
+        },
+        {
+            "uiElement": "ordered_domain_input",
+            "id": "y_input"
+        },
+        {
+            "uiElement": "ordered_domain_input",
+            "id": "z_input"
+        }
+    ],
+    "mapping": {
+        "from": ["x_input", "y_input", "z_input"],
+        "to": [
+                "example:RobotArmErgoJrJoint1",
+                "example:RobotArmErgoJrJoint2",
+                "example:RobotArmErgoJrJoint3",
+                "example:RobotArmErgoJrJoint4"
+            ],
+        "aggregationFunction": {
+            "href": "http://example.robot.helperfunctions/inversekinematics/poppy/ergojr/ik"
+        }
+    }
 }
