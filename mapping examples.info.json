@@ -58,8 +58,8 @@ mapping defines from which elements / apis to which elements / apis the mapping 
         }
     ],
     "mapping": {
-        "from": ["example:RollerShutterUp", "example:RollerShutterDown"],
-        "to": ["move_input:back", "move_input:forward"]
+        "from": ["move_input:back", "move_input:forward"],
+        "to": ["example:RollerShutterUp", "example:RollerShutterDown"],
     }
 }
 
