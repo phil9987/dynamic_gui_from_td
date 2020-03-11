@@ -33,6 +33,7 @@
                         "maximum": 100
                     },
                     "to": {
+                        "@type": "example:dimTarget",
                         "type": "integer",
                         "minimum": 0,
                         "maximum": 100
