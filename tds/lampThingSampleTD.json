@@ -54,12 +54,3 @@
         }
     }
 }
-
-
-Potential mapping
-{
-    "type": "saref:LevelControlFunction",
-    "noTriggerButton": true,
-    "mapsToUiElements": []
-
-}

@@ -1,0 +1,33 @@
+{
+    "@context": [
+        "https://www.w3.org/2019/wot/td/v1",
+        { "saref": "https://w3id.org/saref#" },
+        { "example": "https://example.org#"}
+    ],
+    "id": "urn:dev:ops:8302-WoTRollerShutter-1234",
+    "title": "MyRollerShutterThing",
+    "@type": "example:RollerShutter",
+    "properties": {
+        "status": {
+            "@type": "example:status",
+            "type": "number",
+            "forms": [{
+                "href": "https://myrollershutter.example.com/status"
+            }]
+        }
+    },
+    "actions": {
+        "up": {
+            "@type": "example:RollerShutterUp",
+            "forms": [{
+                "href": "https://myrollershutter.example.com/up"
+            }]
+        },
+        "down": {
+            "@type": "example:RollerShutterDown",
+            "forms": [{
+                "href": "https://myrollershutter.example.com/down"
+            }]
+        }
+    }
+}
