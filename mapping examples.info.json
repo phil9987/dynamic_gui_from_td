@@ -1,4 +1,33 @@
-# Potential mappings
+# Mapping to and aggregation of UI elements
+List of atomic UI elements defined in Simon's 2014 paper:
+'general_data_output',
+'ordered_domain_output',
+'fixed_range_ordered_domain_output'
+'stateless_trigger_button',
+'stateless_forward_backward_buttons',
+'general_data_input',
+'ordered_domain_input',
+'ordered_domain_with_neutral_value_input',
+'operating_mode_input',
+'ordered_domain_fixed_range_input',
+'boolean_switch_input',
+'set_position_input',
+'move_input'
+
+targetType is the top level semantic type for which the mapping / aggregation is going to happen
+triggerButton indicates, whether a trigger button is still necessary, i.e. if there are several input fields for an action
+mapsToUiElements is a list of {"uiElement", "id"} objects which indicate the atomic UI elements that this semantic type maps to,
+    uiElement is one of the 13 atomic ui elements mentioned above
+    id is an identifier that can be used in the mapping definition
+mapping defines from which elements / apis to which elements / apis the mapping happens.
+    It either expects semantic types (which needs to exist in the TD in the current hierarchy below targetType)
+    or an id of a uiElement which has been defined in the mapsToUiElements
+    aggregationFunction is a json object that takes an LDScript function in its "href" field
+        and uses the "to" fields as output (if multiple are provided, the return type is expected to be a list)
+        and the "from" fields as inputs
+
+
+
 
 ## MyLightThing
 {
