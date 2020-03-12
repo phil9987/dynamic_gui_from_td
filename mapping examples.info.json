@@ -31,45 +31,41 @@ mapping defines from which elements / apis to which elements / apis the mapping 
 
 ## MyLightThing
 {
-    "targetType": "saref:LevelControlFunction",
+    "targetTypes": ["saref:LevelControlFunction"],
     "title": "dim",
-    "triggerButton": false,
-    "mapsToUiElements": [
+    "triggerElement": "dimmer",
+    "uiElements": [
         {
             "uiElement": "ordered_domain_fixed_range_input",
             "id": "dimmer"
         }
     ],
-    "mapping": {
-        "from": ["dimmer"],
-        "to": ["example:dimTarget"]
-    }
+    "from": ["dimmer"],
+    "to": ["example:dimTarget"]
 }
 
 ## Roller shutter thing
 {
-    "targetTypes": ["example:RollerShutter"],
+    "targetTypes": ["example:RollerShutter", "saref:RollerShutter"],
     "typeMappings": [{"up": ["example:RollerShutterUp", "saref:RollerShutterUp"]}, {"down": ["example:RollerShutterDown", "saref:RollerShutterDown"]}],
     "title": "Move up/down",
-    "triggerButton": false,
-    "mapsToUiElements": [
+    "triggerElement": "moveUpDown",
+    "uiElements": [
         {
             "uiElement":"move_input",
             "id": "moveUpDown"
         }
     ],
-    "mapping": {
-        "from": ["move_input:back", "move_input:forward"],
-        "to": ["up", "down"],
-    }
+    "from": ["move_input:back", "move_input:forward"],
+    "to": ["up", "down"],
 }
 
 ## Robotarm Poppy Ergo Jr
 {
-    "targetType": "example:RobotArmErgoJr",
+    "targetTypes": ["example:RobotArmErgoJr"],
     "title": "set target coordinates x/y/z",
-    "triggerButton": true,
-    "mapsToUiElements": [
+    "triggerElement": "trigger",
+    "uiElements": [
         {
             "uiElement": "ordered_domain_input",
             "id": "x_input"
@@ -81,18 +77,20 @@ mapping defines from which elements / apis to which elements / apis the mapping 
         {
             "uiElement": "ordered_domain_input",
             "id": "z_input"
+        },
+        {
+            "uiElement": "stateless_trigger_button",
+            "id": "trigger"
         }
     ],
-    "mapping": {
-        "from": ["x_input", "y_input", "z_input"],
-        "to": [
-                "example:RobotArmErgoJrJoint1",
-                "example:RobotArmErgoJrJoint2",
-                "example:RobotArmErgoJrJoint3",
-                "example:RobotArmErgoJrJoint4"
-            ],
-        "aggregationFunction": {
-            "href": "http://example.robot.helperfunctions/inversekinematics/poppy/ergojr/ik"
-        }
+    "from": ["x_input", "y_input", "z_input"],
+    "to": [
+            "example:RobotArmErgoJrJoint1",
+            "example:RobotArmErgoJrJoint2",
+            "example:RobotArmErgoJrJoint3",
+            "example:RobotArmErgoJrJoint4"
+        ],
+    "aggregationFunction": {
+        "href": "http://example.robot.helperfunctions/inversekinematics/poppy/ergojr/ik"
     }
 }
