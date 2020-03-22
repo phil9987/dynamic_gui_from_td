@@ -1,5 +1,7 @@
 import json
 from string import Template
+
+from HttpForm import HttpForm
 '''
 ui_outputs = {'general_data_output',
                'ordered_domain_output',
@@ -55,15 +57,15 @@ class UserInterfaceGenerator:
         http_forms = []
         for action_name, a in self.actions.items():
             for form in a.get('forms'):
-                http_forms.append(('action', UserInterfaceGenerator.Http_Form(action_name, form, isAction=True)))
+                http_forms.append(('action', HttpForm(action_name, form, isAction=True)))
 
         for property_name, p in self.properties.items():
             for form in p.get('forms'):
-                http_forms.append(('property', UserInterfaceGenerator.Http_Form(property_name, form)))
+                http_forms.append(('property', HttpForm(property_name, form)))
 
         for event_name, e in self.events.items():
             for form in e.get('forms'):
-                http_forms.append(('event', UserInterfaceGenerator.Http_Form(event_name, form)))
+                http_forms.append(('event', HttpForm(event_name, form)))
         for name, f in http_forms:
             print(name + " " + str(f))
         self.http_forms = http_forms
@@ -377,48 +379,10 @@ class UserInterfaceGenerator:
                 print("null type")
 
 
-    class Http_Form:
-        def __init__(self, name, jsonld_description, isAction=False):
-            #print(jsonld_description)
-            self.name = name
-            self.endpoint = jsonld_description.get('href', '')
-            self.content_type = jsonld_description.get('contentType', '')
-            self.http_methods = []
-            if 'htv:methodName' in jsonld_description:
-                self.http_methods.append(jsonld_description.get('htv:methodName'))
-            elif isAction:
-                self.http_methods.append('POST') #default for action acc. to w3c
-            elif 'op' in jsonld_description:
-                # default for these operations according to w3c standard
-                ops = jsonld_description.get('op')
-                if type(ops) is str:
-                    ops = [ops]
-                for op in ops:
-                    if op in {'readproperty', 'readallproperties', 'readmultipleproperties'}:
-                        self.http_methods.append('GET')
-                    elif op in {'writeproperty', 'writeallproperties', 'writemultipleproperties'}:
-                        self.http_methods.append('PUT')
-                    elif op == 'invokeaction':
-                        self.http_methods.append('POST')
-                    elif op in {'subscribeevent', 'unsubscribeevent'}:
-                        print(jsonld_description)
-                        if 'subprotocol' in jsonld_description:
-                            self.http_methods.append(jsonld_description.get('subprotocol'))
-                        else:
-                            print("ERROR: httpmethod of subscribeevent and unsubscribeevent not clearly defined")
-                    else:
-                        print("ERROR: no http method assigned for op " + op)
-
-        def __str__(self):
-            res = "Http_Form '" + self.name + "'\nendpoint: " + self.endpoint + "\ncontent_type: " + self.content_type + "\nhttp_methods: "
-            for h in self.http_methods:
-                res += h + ', '
-            return  res
-
 def main():
     ui_generator = UserInterfaceGenerator()
     ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json')
-            #with open('./tds/poppyErgoJr_RobotArm_TD.json', 'r') as f:)
+    ui_generator.generate_html_ui_from_file('./tds/poppyErgoJr_RobotArm_TD.json')
 
 if __name__== "__main__":
     main()
