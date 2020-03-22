@@ -2,6 +2,7 @@ import json
 from string import Template
 
 from HttpForm import HttpForm
+from HtmlGenerator import HtmlGenerator
 '''
 ui_outputs = {'general_data_output',
                'ordered_domain_output',
@@ -29,41 +30,27 @@ class UserInterfaceGenerator:
             return self.generate_html_ui(jsonld_input)
 
     def generate_html_ui(self, jsonld_td):
-        self.actions = self.__extract_actions(jsonld_td)
-        self.events = self.__extract_events(jsonld_td)
-        self.properties = self.__extract_properties(jsonld_td)
-        self.http_forms = self.__extract_http_methods()
-        action_parse_res = self.__parse_actions(self.actions, self.http_forms)
-        html_base = Template(self.html_base_template.safe_substitute(header=self.container_style_string))
-
-        html_body = ''
-        html_script = ''
-        for action_name, html_ui_elements in action_parse_res:
-            print("adding html elements for action {}".format(action_name))
-            for html_part, js_part in html_ui_elements:
-                html_body += html_part
-                html_script += js_part
-        # TODO: should different actions be put into separate <div> containers?
-
-        html_body = self.container_template.substitute(container_title=jsonld_td.get("title"), container_content=html_body)
-
-        html_body += self.script_template.substitute(js_content=html_script)
-
-        full_html = html_base.substitute(body=html_body)
+        actions = self.__extract_actions(jsonld_td)
+        events = self.__extract_events(jsonld_td)
+        properties = self.__extract_properties(jsonld_td)
+        http_forms = self.__extract_http_methods(actions, properties, events)
+        html_generator = HtmlGenerator()
+        action_parse_res = self.__parse_actions(actions, http_forms, html_generator)
+        full_html = html_generator.generate_ui_for_thing(jsonld_td.get("title"))
         print(full_html)
         return full_html
 
-    def __extract_http_methods(self):
+    def __extract_http_methods(self, actions, properties, events):
         http_forms = []
-        for action_name, a in self.actions.items():
+        for action_name, a in actions.items():
             for form in a.get('forms'):
                 http_forms.append(('action', HttpForm(action_name, form, isAction=True)))
 
-        for property_name, p in self.properties.items():
+        for property_name, p in properties.items():
             for form in p.get('forms'):
                 http_forms.append(('property', HttpForm(property_name, form)))
 
-        for event_name, e in self.events.items():
+        for event_name, e in events.items():
             for form in e.get('forms'):
                 http_forms.append(('event', HttpForm(event_name, form)))
         for name, f in http_forms:
@@ -84,63 +71,7 @@ class UserInterfaceGenerator:
     def __extract_properties(self, jsonld_input):
         return jsonld_input.get('properties', {})
 
-    def __parse_uri_variables(self, jsonld):
-        '''
-            part of InteractionAffordance, same level as forms and connected to forms (no uriVariables without forms)
-
-            e.g.
-
-            "uriVariables": {
-                    "p" : { "type": "integer", "minimum": 0, "maximum": 16, "@type": "eg:SomeKindOfAngle" },
-                    "d" : { "type": "integer", "minimum": 0, "maximum": 1, "@type": "eg:Direction" }
-            },
-            "forms": [{
-            "href" : "http://192.168.1.25/left{?p,d}",
-            "htv:methodName": "GET"
-            }]
-        '''
-        # not essential for now. TODO: implement later
-        return None
-
-    def __extract_data_description(self, jsonld):
-        type_ = jsonld.get("type")
-        min_ = jsonld.get("minimum")
-        max_ = jsonld.get("maximum")
-        ordered = False
-        if type_ in {"integer", "number"}:
-            # TODO: is boolean also ordered?
-            ordered = True
-        return {"type": type_, "ordered": ordered, "min": min_, "max": max_}
-
-    def __map_array_type_input(self, jsonld):
-        '''
-        In general, arrays can be displayed and entered in a general data field by comma separated values.
-        If the number of items is fixed and the types are known, a separate input field for each element could be displayed.
-        The downside is, that the designators for each element is unknown, i.e. for RGB value in the example below it is clear
-        if there is a single input field with description RGB value, 3 items, comma-separated. But it might be less clear
-        if there are 3 input fields with only one title saying RGB values. Hence I would rather create a descriptive title
-        and a single input field.
-
-            "type": "array",
-            "items" : {
-                "type" : "number",
-                "minimum": 0,
-                "maximum": 255
-            },
-            "minItems": 3,
-            "maxItems": 3
-        '''
-        data_description = self.__extract_data_description(jsonld.get("items"))
-        minItems = jsonld.get("minItems")
-        maxItems = jsonld.get("maxItems")
-        if minItems and maxItems and minItems == maxItems:
-            # a fixed number of elements
-            data_description["num_elements"] = minItems
-        elif minItems and maxItems:
-            data_description["num_elements"] = "min{}_max{}".format(minItems, maxItems)
-        # TODO: complete implementation, array type is omitted for the PoC
-
-    def __map_number_type_input(self, json_key, jsonld):
+    def __map_number_type_input(self, json_key, jsonld, html_generator):
         # for both integer and number
         '''
             "type": "number",
@@ -150,9 +81,9 @@ class UserInterfaceGenerator:
         min_ = jsonld.get('minimum')
         max_ = jsonld.get('maximum')
         # TODO: handle case when it's not a range or only bounded to one side
-        return self.__generate_html_for_slider(json_key, min_, max_, min_)
+        html_generator.add_fixed_range_ordered_domain(json_key, min_, max_, min_)
 
-    def __map_object_type_input(self, jsonld):
+    def __map_object_type_input(self, jsonld, html_generator):
         # recursively parse types
         '''
                 "type": "object",
@@ -172,23 +103,21 @@ class UserInterfaceGenerator:
                 "required": ["to","duration"],
         '''
         props = jsonld.get('properties')
-        ui_elements = []
         for p in props:
-            ui_elements.append(self.__map_to_input_ui_elements(p, props.get(p)))
-        return ui_elements
+            self.__map_to_input_ui_elements(p, props.get(p), html_generator)
 
-    def __map_to_input_ui_elements(self, json_key, jsonld):
+    def __map_to_input_ui_elements(self, json_key, jsonld, html_generator):
         t = jsonld.get('type')
         # TODO: also check for enum
         if t == 'object':
-            return self.__map_object_type_input(jsonld)
+            return self.__map_object_type_input(jsonld, html_generator)
         elif t == 'integer' or  t == 'number':
-            return self.__map_number_type_input(json_key, jsonld)
+            return self.__map_number_type_input(json_key, jsonld, html_generator)
         else:
             print("type not yet supported: {}".format(t))
             return None
 
-    def __parse_actions(self, actions, http_forms):
+    def __parse_actions(self, actions, http_forms, html_generator):
         '''
                 Heuristics for actions:
                 - no input -> simple trigger
@@ -246,64 +175,61 @@ class UserInterfaceGenerator:
         '''
         overall_res = []
         for action_name, a in actions.items():
-            print(action_name)
-            print(a)
-            input = a.get("input")
-            output = a.get("output")
+            input_ = a.get("input")
             # TODO: handle output
-            res = self.__map_to_input_ui_elements(action_name, input)
-            if type(res) != list:
-                res = [res]
-            if len(res) > 1:
-                # trigger button needed
-                print("DEBUG: " + str(res))
-                res.append(self.__generate_html_for_button(action_name, action_name, a.get("forms")[0].get('href'), "{} arguments".format(len(res))))
-            overall_res.append((action_name, res))
-        return overall_res
+            # output_ = a.get("output")
+            # TODO: should different actions be put into separate <div> containers?
+            self.__map_to_input_ui_elements(action_name, input_, html_generator)
+            num_ui_elements = html_generator.get_and_reset_count()
+            if num_ui_elements > 1:
+                # trigger button necessary, because there are multiple inputs for a single action
+                html_generator.add_trigger_button(action_name, a.get("forms")[0].get('href'), "{} arguments".format(num_ui_elements))
 
-    html_base_template = Template('''
-                                <!DOCTYPE html>
-                                <html>
-                                    <head>
-                                        $header
-                                    </head>
-                                    <body>
-                                        $body
-                                    </body>
-                                </html>''')
+    def __parse_uri_variables(self, jsonld):
+        '''
+            part of InteractionAffordance, same level as forms and connected to forms (no uriVariables without forms)
 
-    container_template = Template('''<div class="container"><h4>$container_title</h4>$container_content</div>''')
-    container_style_string = '''<style>
-                            .container {
-                                width: fit-content;
-                                border: 2px solid;
-                            }
-                        </style>'''
+            e.g.
 
-    script_template = Template('''\n<script>$js_content</script>''')
+            "uriVariables": {
+                    "p" : { "type": "integer", "minimum": 0, "maximum": 16, "@type": "eg:SomeKindOfAngle" },
+                    "d" : { "type": "integer", "minimum": 0, "maximum": 1, "@type": "eg:Direction" }
+            },
+            "forms": [{
+            "href" : "http://192.168.1.25/left{?p,d}",
+            "htv:methodName": "GET"
+            }]
+        '''
+        # not essential for now. TODO: implement later
+        return None
 
-    def __generate_html_for_slider(self, id, min, max, current):
-        slider_template = Template('''<div><h5>$slider_title<h5><input id="$slider_id" type="range" min="$min" max="$max" value="$current" class="slider" /><p>Value: <span id="$output_id" /></p></div>''')
-        slider_script_template = Template('''var $slider_id = document.getElementById("$slider_id");
-                                var $output_id = document.getElementById("$output_id");
-                                $output_id.innerHTML = $slider_id.value;
-                                $slider_id.oninput = function() { $output_id.innerHTML = this.value;}
-                                ''')
-        html_body = slider_template.substitute(slider_title= id, slider_id=id, min=min, max=max, current=current, output_id=id+'_output')
-        html_script = slider_script_template.substitute(slider_id=id, output_id=id+'_output')
-        return html_body, html_script
+    def __map_array_type_input(self, jsonld):
+        '''
+        In general, arrays can be displayed and entered in a general data field by comma separated values.
+        If the number of items is fixed and the types are known, a separate input field for each element could be displayed.
+        The downside is, that the designators for each element is unknown, i.e. for RGB value in the example below it is clear
+        if there is a single input field with description RGB value, 3 items, comma-separated. But it might be less clear
+        if there are 3 input fields with only one title saying RGB values. Hence I would rather create a descriptive title
+        and a single input field.
 
-    def __generate_html_for_general_input(self, designator, id):
-        text_input_template = Template('''<label for="$id">$designator</label> <input type="text" id="$id" name="$id">''')
-        return text_input_template.substitute(id=id, designator=designator), ""
-
-    def __generate_html_for_button(self, id, text, trigger_api, trigger_payload):
-        button_template = Template('''<button id=$id type="button" onclick="alert('sending request to $trigger_api with $trigger_payload')">$text</button>''')
-        return button_template.substitute(id=id, trigger_api=trigger_api, trigger_payload=trigger_payload, text=text), ""
-
-
-    html_base = Template(html_base_template.safe_substitute(header=container_style_string))
-
+            "type": "array",
+            "items" : {
+                "type" : "number",
+                "minimum": 0,
+                "maximum": 255
+            },
+            "minItems": 3,
+            "maxItems": 3
+        '''
+        data_description = self.__extract_data_description(jsonld.get("items"))
+        minItems = jsonld.get("minItems")
+        maxItems = jsonld.get("maxItems")
+        if minItems and maxItems and minItems == maxItems:
+            # a fixed number of elements
+            data_description["num_elements"] = minItems
+        elif minItems and maxItems:
+            data_description["num_elements"] = "min{}_max{}".format(minItems, maxItems)
+        # TODO: complete implementation, array type is omitted for the PoC
 
     def __parse_properties(self, http_forms):
         '''
