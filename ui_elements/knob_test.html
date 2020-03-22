@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Lamp Thing</h1>
+
+<div class="slidecontainer">
+    <h4>dim from</h4>
+    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+    <p>Value: <span id="demo"></span></p>
+</div>
+
+<script>
+var slider = document.getElementById("myRange");
+var output = document.getElementById("demo");
+output.innerHTML = slider.value;
+
+slider.oninput = function() {
+  output.innerHTML = this.value;
+}
+</script>
+
+<div class="slidecontainer_asf">
+    <h4>dim to</h4>
+    <input type="range" min="1" max="100" value="49" class="slider" id="myRange2">
+    <p>Value: <span id="asf"></span></p>
+  </div>
+
+  <script>
+  var slider2 = document.getElementById("myRange2");
+  var output2 = document.getElementById("asf");
+  output2.innerHTML = slider2.value;
+
+  slider2.oninput = function() {
+    output2.innerHTML = this.value;
+  }
+  </script>
+
+</body>
+</html>

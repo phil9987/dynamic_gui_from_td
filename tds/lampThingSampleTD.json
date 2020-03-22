@@ -6,22 +6,7 @@
     "id": "urn:dev:ops:32473-WoTLamp-1234",
     "title": "MyLampThing",
     "@type": "saref:LightSwitch",
-    "properties": {
-        "status": {
-            "@type": "saref:OnOffState",
-            "type": "string",
-            "forms": [{
-                "href": "https://mylamp.example.com/status"
-            }]
-        }
-    },
     "actions": {
-        "toggle": {
-            "@type": "saref:ToggleCommand",
-            "forms": [{
-                "href": "https://mylamp.example.com/toggle"
-            }]
-        },
         "dim" : {
             "@type": "saref:levelcontrolfunction",
             "input": {
@@ -40,17 +25,8 @@
                     }                },
                 "required": ["to"]
             },
-            "output": {"type": "string"},
             "forms": [{
                 "href": "https://mylamp.example.com/dim"
-            }]
-        }
-    },
-    "events": {
-        "overheating": {
-            "data": {"type": "string"},
-            "forms": [{
-                "href": "https://mylamp.example.com/oh"
             }]
         }
     }
