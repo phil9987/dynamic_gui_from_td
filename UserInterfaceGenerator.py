@@ -54,7 +54,7 @@ class UserInterfaceGenerator:
         properties = self.__extract_properties(jsonld_td)
         http_forms = self.__extract_http_methods(actions, properties, events)
         html_generator = HtmlGenerator()
-        action_parse_res = self.__parse_actions(jsonld_td, actions, http_forms, html_generator)
+        action_parse_res = self.__map_actions_to_ui_elements(jsonld_td, actions, http_forms, html_generator)
         # TODO: also parse events and properties, this has not yet been implemented
         full_html = html_generator.generate_ui_for_thing(jsonld_td.get("title"))
         print(full_html)
@@ -74,7 +74,7 @@ class UserInterfaceGenerator:
 
     def __generate_ui_elements_from_semantic_type_mapping(self, main_json_td, semantic_type, mapping, html_generator):
         print("applying semantic type mapping {}".format(semantic_type))
-        # TODO: check if sub semantic types exist, for PoC we just assume they do
+        # TODO: check if sub-semantic-types exist, for PoC we just assume they do
         print(mapping)
         print(mapping.get('title'))
         trigger_el = mapping.get('triggerElement')
@@ -185,7 +185,7 @@ class UserInterfaceGenerator:
             print("type not yet supported: {}".format(t))
             return None
 
-    def __parse_actions(self, jsonld_td, actions, http_forms, html_generator):
+    def __map_actions_to_ui_elements(self, jsonld_td, actions, http_forms, html_generator):
         '''
                 Heuristics for actions:
                 - no input -> simple trigger
@@ -303,7 +303,7 @@ class UserInterfaceGenerator:
             data_description["num_elements"] = "min{}_max{}".format(minItems, maxItems)
         # TODO: complete implementation, array type is omitted for the PoC
 
-    def __parse_properties(self, http_forms):
+    def __map_properties_to_ui_elements(self, http_forms):
         '''
             According to w3c standard: "Property instances are also instances of the class DataSchema.
             Therefore, it can contain the type, unit, readOnly and writeOnly members, among others."
@@ -322,7 +322,7 @@ class UserInterfaceGenerator:
                 # TODO: define what happens here
                 print("property of type null...")
 
-    def __parse_events(self, http_forms):
+    def __map_events_to_ui_elements(self, http_forms):
         '''
             subscription (optional): Defines data that needs to be passed upon subscription.
             data (optional): Defines the data schema of the Event instance messages pushed by the Thing.

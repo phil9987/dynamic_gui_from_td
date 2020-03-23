@@ -18,7 +18,6 @@
             },
             {
                 "targetTypes": ["example:RollerShutter", "saref:RollerShutter"],
-                "typeMappings": [{"up": ["example:RollerShutterUp", "saref:RollerShutterUp"]}, {"down": ["example:RollerShutterDown", "saref:RollerShutterDown"]}],
                 "title": "Move up/down",
                 "triggerElement": "moveUpDown",
                 "uiElements": [
@@ -28,7 +27,7 @@
                     }
                 ],
                 "from": ["move_input:back", "move_input:forward"],
-                "to": ["up", "down"]
+                "to": ["example:RollerShutterUp", "example:RollerShutterDown"]
             },
             {
                 "targetTypes": ["example:RobotArmErgoJr"],
