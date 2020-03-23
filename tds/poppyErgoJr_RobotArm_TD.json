@@ -4,7 +4,7 @@
         ],
     "id": "robotarm1",
     "title": "MyRobotArm",
-    "@type": "example:robotArm",
+    "@type": "example:RobotArmErgoJr",
     "actions": {
         "set_joint1_angle": {
             "@type": "example:RobotArmErgoJrJoint1",

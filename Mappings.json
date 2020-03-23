@@ -1,0 +1,67 @@
+{
+    "mapping":
+        [
+            {
+                "targetTypes": ["saref:LevelControlFunction"],
+                "title": "dim",
+                "triggerElement": "dimmer",
+                "uiElements": [
+                    {
+                        "uiElement": "ordered_domain_fixed_range_input",
+                        "id": "dimmer",
+                        "min": 0,
+                        "max": 100
+                    }
+                ],
+                "from": ["dimmer"],
+                "to": ["example:dimTarget"]
+            },
+            {
+                "targetTypes": ["example:RollerShutter", "saref:RollerShutter"],
+                "typeMappings": [{"up": ["example:RollerShutterUp", "saref:RollerShutterUp"]}, {"down": ["example:RollerShutterDown", "saref:RollerShutterDown"]}],
+                "title": "Move up/down",
+                "triggerElement": "moveUpDown",
+                "uiElements": [
+                    {
+                        "uiElement":"move_input",
+                        "id": "moveUpDown"
+                    }
+                ],
+                "from": ["move_input:back", "move_input:forward"],
+                "to": ["up", "down"]
+            },
+            {
+                "targetTypes": ["example:RobotArmErgoJr"],
+                "title": "set target coordinates x/y/z",
+                "triggerElement": "trigger",
+                "uiElements": [
+                    {
+                        "uiElement": "ordered_domain_input",
+                        "id": "x_input"
+                    },
+                    {
+                        "uiElement": "ordered_domain_input",
+                        "id": "y_input"
+                    },
+                    {
+                        "uiElement": "ordered_domain_input",
+                        "id": "z_input"
+                    },
+                    {
+                        "uiElement": "stateless_trigger_button",
+                        "id": "trigger"
+                    }
+                ],
+                "from": ["x_input", "y_input", "z_input"],
+                "to": [
+                        "example:RobotArmErgoJrJoint1",
+                        "example:RobotArmErgoJrJoint2",
+                        "example:RobotArmErgoJrJoint3",
+                        "example:RobotArmErgoJrJoint4"
+                    ],
+                "aggregationFunction": {
+                    "href": "http://example.robot.helperfunctions/inversekinematics/poppy/ergojr/ik"
+                }
+            }
+        ]
+}

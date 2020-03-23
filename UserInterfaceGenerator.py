@@ -21,15 +21,35 @@ ui_inputs = {'stateless_trigger_button',
             }
 '''
 class UserInterfaceGenerator:
-    def __init__(self):
+    def __init__(self, mapping_file_path = ''):
+        self.semantic_type_mapping = {}
+        self.mapping = {}
+        if mapping_file_path:
+            with open(mapping_file_path, 'r') as f:
+                json_mapping = json.load(f).get("mapping")
+                self.mapping_id = 0
+                for m in json_mapping:
+                    target_types = m.get("targetTypes")
+                    self.mapping[self.mapping_id] = m
+                    for t in target_types:
+                        self.semantic_type_mapping[t.lower()] = self.mapping_id
+                    self.mapping_id += 1
         print("UI generator successfully initialized")
+
+    def get_mapping_for_semantic_type(self, t):
+        current_id = self.semantic_type_mapping.get(t, -1)
+        if current_id >= 0:
+            return self.mapping.get(current_id)
+        return None
 
     def generate_html_ui_from_file(self, path):
         with open(path, 'r') as f:
             jsonld_input = json.load(f)
+            self.jsonld_td_input = jsonld_input
             return self.generate_html_ui(jsonld_input)
 
     def generate_html_ui(self, jsonld_td):
+        self.__scan_and_replace_semantic_type_mappings(jsonld_td)
         actions = self.__extract_actions(jsonld_td)
         events = self.__extract_events(jsonld_td)
         properties = self.__extract_properties(jsonld_td)
@@ -39,6 +59,68 @@ class UserInterfaceGenerator:
         full_html = html_generator.generate_ui_for_thing(jsonld_td.get("title"))
         print(full_html)
         return full_html
+
+    def __scan_and_replace_semantic_type_mappings(self, jsonld, parents = []):
+            semantic_type = jsonld.get('@type')
+            if semantic_type:
+                semantic_type = semantic_type.lower()
+            print("scanning semantic type {}".format(semantic_type))
+            mapping = self.get_mapping_for_semantic_type(semantic_type)
+            if mapping:
+                self.__replace_semantic_type_mapping(jsonld, semantic_type, mapping, parents)
+            for k, el in jsonld.items():
+                if type(el) == dict:
+                    # we can dive in further to search for semantic types
+                    self.__scan_and_replace_semantic_type_mappings(jsonld[k], parents + [k])
+
+
+    def __replace_semantic_type_mapping(self, main_json_td, semantic_type, mapping, parents):
+        print("replacing semantic type mapping {} for parent {}".format(semantic_type, parents))
+        # TODO: check if sub semantic types exist, for PoC we just assume they do
+        html_generator = HtmlGenerator()
+        parent_json = self.jsonld_td_input
+        current_json = parent_json
+        if parents:
+            for p in parents[:-1]:
+                parent_json = parent_json.get(p)
+            print(parent_json)
+            current_json = parent_json[parents[-1]]
+        trigger_el = mapping.get('triggerElement')
+        ui_elements = mapping.get('uiElements')
+        for json_ui_el in ui_elements:
+            ui_el = json_ui_el.get('uiElement')
+            if ui_el == 'ordered_domain_fixed_range_input':
+                min_ = json_ui_el.get('min')
+                max_ = json_ui_el.get('max')
+                if trigger_el == json_ui_el.get('id'):
+                    trigger_infos = self.__extract_trigger_infos(json_ui_el, main_json_td, semantic_type, parents)
+                    html_generator.add_fixed_range_ordered_domain(mapping.get('title'), min_, max_, min_, trigger_infos)
+                else:
+                    html_generator.add_fixed_range_ordered_domain(mapping.get('title'), min_, max_, min_)
+            elif ui_el == 'ordered_domain_input':
+                html_generator.add_general_input(json_ui_el.get('title'))
+            elif ui_el == 'stateless_trigger_button':
+                if trigger_el == json_ui_el.get('id'):
+                    trigger_infos = self.__extract_trigger_infos(json_ui_el, main_json_td, semantic_type, parents)
+                    html_generator.add_trigger_button('test', 'example.com', 'args', trigger_infos)
+                else:
+                    print("ERROR: trigger button is not trigger element!!")
+
+            elif ui_el == 'move_input':
+                # TODO: for roller shutter example
+                ''
+        json_ui_elements = html_generator.generate_json_ui_elements()
+        if parents:
+            # there is one or more parents, replace the part of the json object with the json_ui_elements
+
+        else:
+            # the whole td is being replaced by the mapping
+            self.jsonld_td_input = json_ui_elements
+
+    def __extract_trigger_infos(self, json_ui_el, main_json_td, semantic_type, parents):
+        # TODO: extract api and form infos which are necessary to generate code for trigger element
+        return ''
+
 
     def __extract_http_methods(self, actions, properties, events):
         http_forms = []
@@ -306,7 +388,7 @@ class UserInterfaceGenerator:
 
 
 def main():
-    ui_generator = UserInterfaceGenerator()
+    ui_generator = UserInterfaceGenerator('./Mappings.json')
     ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json')
     ui_generator.generate_html_ui_from_file('./tds/poppyErgoJr_RobotArm_TD.json')
 
