@@ -1,3 +1,5 @@
+import json
+
 class HttpForm:
     def __init__(self, name, jsonld_description, isAction=False):
         #print(jsonld_description)
@@ -5,6 +7,7 @@ class HttpForm:
         self.endpoint = jsonld_description.get('href', '')
         self.content_type = jsonld_description.get('contentType', '')
         self.http_methods = []
+        self.args = set()
         if 'htv:methodName' in jsonld_description:
             self.http_methods.append(jsonld_description.get('htv:methodName'))
         elif isAction:
@@ -29,6 +32,12 @@ class HttpForm:
                         print("ERROR: httpmethod of subscribeevent and unsubscribeevent not clearly defined")
                 else:
                     print("ERROR: no http method assigned for op " + op)
+    def add_arg(self, key, js_key):
+        self.args.add((key, js_key))
+
+    def describe_http_event(self):
+        return 'endpoint={} args={} http_method={}'.format(self.endpoint, ', '.join(["(key={} js_id={})".format(a[0], a[1]) for a in self.args])
+        , ", ".join([h for h in self.http_methods])).replace('/', '\/').replace(':', '\:')
 
     def __str__(self):
         res = "Http_Form '" + self.name + "'\nendpoint: " + self.endpoint + "\ncontent_type: " + self.content_type + "\nhttp_methods: "

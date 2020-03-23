@@ -9,9 +9,14 @@
         "set_joint1_angle": {
             "@type": "example:RobotArmErgoJrJoint1",
             "input": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 80
+                "type": "object",
+                "properties": {
+                    "angle":{
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 80
+                    }
+                }
             },
             "forms": [{
                 "href": "https://robotarm.example.com/motor1"
@@ -20,9 +25,14 @@
         "set_joint2_angle": {
             "@type": "example:RobotArmErgoJrJoint2",
             "input": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 35
+                "type": "object",
+                "properties": {
+                    "angle":{
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 100
+                    }
+                }
             },
             "forms": [{
                 "href": "https://robotarm.example.com/motor2"
@@ -31,9 +41,14 @@
         "set_joint3_angle": {
             "@type": "example:RobotArmErgoJrJoint3",
             "input": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 180
+                "type": "object",
+                "properties": {
+                    "angle":{
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 180
+                    }
+                }
             },
             "forms": [{
                 "href": "https://robotarm.example.com/motor3"
@@ -42,9 +57,15 @@
         "set_joint4_angle": {
             "@type": "example:RobotArmErgoJrJoint4",
             "input": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 25
+                "type": "object",
+                "properties": {
+                    "angle":{
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 25
+                    }
+                }
+
             },
             "forms": [{
                 "href": "https://robotarm.example.com/motor4"

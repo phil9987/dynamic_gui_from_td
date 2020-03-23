@@ -78,6 +78,7 @@ class UserInterfaceGenerator:
         print(mapping)
         print(mapping.get('title'))
         trigger_el = mapping.get('triggerElement')
+        trigger_infos = self.__extract_trigger_infos(mapping, main_json_td, semantic_type)
         ui_elements = mapping.get('uiElements')
         for json_ui_el in ui_elements:
             ui_el = json_ui_el.get('uiElement')
@@ -85,17 +86,15 @@ class UserInterfaceGenerator:
                 min_ = json_ui_el.get('min')
                 max_ = json_ui_el.get('max')
                 if trigger_el == json_ui_el.get('id'):
-                    trigger_infos = self.__extract_trigger_infos(json_ui_el, main_json_td, semantic_type)
-                    html_generator.add_fixed_range_ordered_domain(mapping.get('title'), min_, max_, min_, trigger_infos)
+                    html_generator.add_fixed_range_ordered_domain(json_ui_el.get('id'), mapping.get('title'), min_, max_, min_, trigger_infos)
                 else:
-                    html_generator.add_fixed_range_ordered_domain(mapping.get('title'), min_, max_, min_)
+                    html_generator.add_fixed_range_ordered_domain(json_ui_el.get('id'), mapping.get('title'), min_, max_, min_)
             elif ui_el == 'ordered_domain_input':
-                html_generator.add_general_input(json_ui_el.get('designator'))
+                html_generator.add_general_input(json_ui_el.get('id'), json_ui_el.get('designator'))
             elif ui_el == 'stateless_trigger_button':
                 print("DEBUG: stateless trigger button is being created")
                 if trigger_el == json_ui_el.get('id'):
-                    trigger_infos = self.__extract_trigger_infos(json_ui_el, main_json_td, semantic_type)
-                    html_generator.add_trigger_button(json_ui_el.get('designator'), 'example.com', 'args', trigger_infos)
+                    html_generator.add_trigger_button(json_ui_el.get('id'), json_ui_el.get('designator'), trigger_infos)
                 else:
                     print("ERROR: trigger button is not trigger element!!")
 
@@ -103,25 +102,57 @@ class UserInterfaceGenerator:
                 # TODO: for roller shutter example
                 ''
 
-    def __extract_trigger_infos(self, json_ui_el, main_json_td, semantic_type):
-        # TODO: extract api and form infos which are necessary to generate code for trigger element
-        return ''
+    def __extract_trigger_infos(self, mapping, main_json_td, semantic_type):
+        # TODO: also consider output elements, currently this assumes that the mapping only maps to input elements, i.e. the semantic types are always in 'to'
+        iris = []
+        for i, t in enumerate(mapping.get('to')):
+            arg, iri = self.__find_semantic_type_infos_in_action_input(t, main_json_td)
+            if mapping.get('aggregationFunction'):
+                ''
+                # TODO: add aggregation function info
+                from_type = 'aggregationFunctionRes_{}'.format(i)
+            else:
+                # 'from' maps 1:1 to 'to'
+                from_type = mapping.get('from')[i]
+            iri.add_arg(arg, from_type)
+            iris.append(iri)
+        return iris
+
+    def __find_semantic_type_infos_in_action_input(self, semantic_type, json_td):
+        for action_name, a in json_td.get('actions').items():
+            input_ = a.get('input')
+            input_type = input_.get('type')
+            action_semantic_type = a.get('@type')
+            if input_type == 'object':
+                # for now we only consider one layer of nesting
+                for property_name, p in input_.get('properties').items():
+                    current_semantic_type = p.get('@type')
+                    if (action_semantic_type and action_semantic_type.lower() == semantic_type.lower()) or (current_semantic_type and current_semantic_type.lower() == semantic_type.lower()):
+                        # this is the parameter we we were looking for!
+                        return property_name, self.http_forms.get('action_' + action_name)
+            else:
+                print("ERROR: Unclear how the input has to be provided to the api as no designator is provided in the TD")
+        print("ERROR, semantic type could not be mapped to action input element")
+        return None, None
+
+
 
 
     def __extract_http_methods(self, actions, properties, events):
-        http_forms = []
+        http_forms = {}
         for action_name, a in actions.items():
             for form in a.get('forms'):
-                http_forms.append(('action', HttpForm(action_name, form, isAction=True)))
+                http_forms['action_' + action_name] = HttpForm(action_name, form, isAction=True)
 
         for property_name, p in properties.items():
             for form in p.get('forms'):
-                http_forms.append(('property', HttpForm(property_name, form)))
+                http_forms['property_' + property_name] = HttpForm(property_name, form)
 
         for event_name, e in events.items():
             for form in e.get('forms'):
-                http_forms.append(('event', HttpForm(event_name, form)))
-        for name, f in http_forms:
+                http_forms['event_' + property_name] = HttpForm(event_name, form)
+
+        for name, f in http_forms.items():
             print(name + " " + str(f))
         self.http_forms = http_forms
         return http_forms
@@ -149,7 +180,7 @@ class UserInterfaceGenerator:
         min_ = jsonld.get('minimum')
         max_ = jsonld.get('maximum')
         # TODO: handle case when it's not a range or only bounded to one side
-        html_generator.add_fixed_range_ordered_domain(json_key, min_, max_, min_)
+        html_generator.add_fixed_range_ordered_domain(json_key, json_key, min_, max_, min_)
 
     def __map_object_type_input(self, jsonld, html_generator):
         # recursively parse types
@@ -255,7 +286,7 @@ class UserInterfaceGenerator:
                 num_ui_elements = html_generator.get_and_reset_count()
                 if num_ui_elements > 1:
                     # trigger button necessary, because there are multiple inputs for a single action
-                    html_generator.add_trigger_button(action_name, a.get("forms")[0].get('href'), "{} arguments".format(num_ui_elements))
+                    html_generator.add_trigger_button('action_' + action_name, action_name, (a.get("forms")[0].get('href'), "{} arguments".format(num_ui_elements)))
 
     def __parse_uri_variables(self, jsonld):
         '''
@@ -309,8 +340,6 @@ class UserInterfaceGenerator:
             Therefore, it can contain the type, unit, readOnly and writeOnly members, among others."
         '''
         for property_name, p in self.properties.items():
-            for form in p.get('forms'):
-                http_forms.append(('property', HttpForm(property_name, form)))
             property_type = p.get('type')
             if property_type in {'array', 'string', 'number', 'integer', 'boolean'}:
                 # TODO: simple type, infer UI element for each form?
@@ -362,8 +391,6 @@ class UserInterfaceGenerator:
             },
         '''
         for event_name, e in self.events.items():
-            for form in e.get('forms'):
-                http_forms.append(('event', HttpForm(event_name, form)))
             event_output_type = e.get('data').get('type')
             if event_output_type in {'array', 'string', 'number', 'integer', 'boolean'}:
                 # TODO: simple type, infer UI element for each form?
@@ -379,8 +406,10 @@ class UserInterfaceGenerator:
 
 def main():
     ui_generator = UserInterfaceGenerator('./Mappings.json')
-    ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json')
-    ui_generator.generate_html_ui_from_file('./tds/poppyErgoJr_RobotArm_TD.json')
+    with open('./lampThing.html', 'w') as f:
+        f.write(ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json'))
+    with open('./robotArmThing.html', 'w') as f:
+        f.write(ui_generator.generate_html_ui_from_file('./tds/poppyErgoJr_RobotArm_TD.json'))
 
 if __name__== "__main__":
     main()
