@@ -2,7 +2,7 @@
     "mapping":
         [
             {
-                "targetTypes": ["saref:LevelControlFunction"],
+                "targetTypes": ["example:LampDimmer"],
                 "title": "dim",
                 "triggerElement": "dimmer",
                 "uiElements": [
@@ -37,19 +37,23 @@
                 "uiElements": [
                     {
                         "uiElement": "ordered_domain_input",
-                        "id": "x_input"
+                        "id": "x_input",
+                        "designator": "X"
                     },
                     {
                         "uiElement": "ordered_domain_input",
-                        "id": "y_input"
+                        "id": "y_input",
+                        "designator": "Y"
                     },
                     {
                         "uiElement": "ordered_domain_input",
-                        "id": "z_input"
+                        "id": "z_input",
+                        "designator": "Z"
                     },
                     {
                         "uiElement": "stateless_trigger_button",
-                        "id": "trigger"
+                        "id": "trigger",
+                        "designator": "move"
                     }
                 ],
                 "from": ["x_input", "y_input", "z_input"],

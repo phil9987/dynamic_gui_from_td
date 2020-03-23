@@ -1,0 +1,6 @@
+<!DOCTYPE html><html><head><style>.container {width: fit-content; border: 2px solid;}</style></head><body><div class="container"><h4>MyLampThing</h4><div><h5>dim<h5><input id="dim" type="range" min="0" max="100" value="0" class="slider" /><p>Value: <span id="dim_output" /></p></div></div>
+<script>var dim = document.getElementById("dim");
+                                var dim_output = document.getElementById("dim_output");
+                                dim_output.innerHTML = dim.value;
+                                dim.oninput = function() { dim_output.innerHTML = this.value;}
+                                </script></body></html>

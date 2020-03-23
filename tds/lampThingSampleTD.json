@@ -5,7 +5,7 @@
     ],
     "id": "urn:dev:ops:32473-WoTLamp-1234",
     "title": "MyLampThing",
-    "@type": "saref:LightSwitch",
+    "@type": "example:LampDimmer",
     "actions": {
         "dim" : {
             "@type": "saref:levelcontrolfunction",

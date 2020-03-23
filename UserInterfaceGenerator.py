@@ -49,42 +49,34 @@ class UserInterfaceGenerator:
             return self.generate_html_ui(jsonld_input)
 
     def generate_html_ui(self, jsonld_td):
-        self.__scan_and_replace_semantic_type_mappings(jsonld_td)
         actions = self.__extract_actions(jsonld_td)
         events = self.__extract_events(jsonld_td)
         properties = self.__extract_properties(jsonld_td)
         http_forms = self.__extract_http_methods(actions, properties, events)
         html_generator = HtmlGenerator()
-        action_parse_res = self.__parse_actions(actions, http_forms, html_generator)
+        action_parse_res = self.__parse_actions(jsonld_td, actions, http_forms, html_generator)
+        # TODO: also parse events and properties, this has not yet been implemented
         full_html = html_generator.generate_ui_for_thing(jsonld_td.get("title"))
         print(full_html)
         return full_html
 
-    def __scan_and_replace_semantic_type_mappings(self, jsonld, parents = []):
-            semantic_type = jsonld.get('@type')
-            if semantic_type:
-                semantic_type = semantic_type.lower()
-            print("scanning semantic type {}".format(semantic_type))
+    def __extract_semantic_type_mapping(self, jsonld):
+        semantic_type = jsonld.get('@type')
+        if semantic_type:
+            semantic_type = semantic_type.lower()
+            print("Found semantic type {}".format(semantic_type))
             mapping = self.get_mapping_for_semantic_type(semantic_type)
             if mapping:
-                self.__replace_semantic_type_mapping(jsonld, semantic_type, mapping, parents)
-            for k, el in jsonld.items():
-                if type(el) == dict:
-                    # we can dive in further to search for semantic types
-                    self.__scan_and_replace_semantic_type_mappings(jsonld[k], parents + [k])
+                print("Found mapping!")
+                return semantic_type, mapping
+        # No semantic type or no match was found
+        return None, None
 
-
-    def __replace_semantic_type_mapping(self, main_json_td, semantic_type, mapping, parents):
-        print("replacing semantic type mapping {} for parent {}".format(semantic_type, parents))
+    def __generate_ui_elements_from_semantic_type_mapping(self, main_json_td, semantic_type, mapping, html_generator):
+        print("applying semantic type mapping {}".format(semantic_type))
         # TODO: check if sub semantic types exist, for PoC we just assume they do
-        html_generator = HtmlGenerator()
-        parent_json = self.jsonld_td_input
-        current_json = parent_json
-        if parents:
-            for p in parents[:-1]:
-                parent_json = parent_json.get(p)
-            print(parent_json)
-            current_json = parent_json[parents[-1]]
+        print(mapping)
+        print(mapping.get('title'))
         trigger_el = mapping.get('triggerElement')
         ui_elements = mapping.get('uiElements')
         for json_ui_el in ui_elements:
@@ -93,31 +85,25 @@ class UserInterfaceGenerator:
                 min_ = json_ui_el.get('min')
                 max_ = json_ui_el.get('max')
                 if trigger_el == json_ui_el.get('id'):
-                    trigger_infos = self.__extract_trigger_infos(json_ui_el, main_json_td, semantic_type, parents)
+                    trigger_infos = self.__extract_trigger_infos(json_ui_el, main_json_td, semantic_type)
                     html_generator.add_fixed_range_ordered_domain(mapping.get('title'), min_, max_, min_, trigger_infos)
                 else:
                     html_generator.add_fixed_range_ordered_domain(mapping.get('title'), min_, max_, min_)
             elif ui_el == 'ordered_domain_input':
-                html_generator.add_general_input(json_ui_el.get('title'))
+                html_generator.add_general_input(json_ui_el.get('designator'))
             elif ui_el == 'stateless_trigger_button':
+                print("DEBUG: stateless trigger button is being created")
                 if trigger_el == json_ui_el.get('id'):
-                    trigger_infos = self.__extract_trigger_infos(json_ui_el, main_json_td, semantic_type, parents)
-                    html_generator.add_trigger_button('test', 'example.com', 'args', trigger_infos)
+                    trigger_infos = self.__extract_trigger_infos(json_ui_el, main_json_td, semantic_type)
+                    html_generator.add_trigger_button(json_ui_el.get('designator'), 'example.com', 'args', trigger_infos)
                 else:
                     print("ERROR: trigger button is not trigger element!!")
 
             elif ui_el == 'move_input':
                 # TODO: for roller shutter example
                 ''
-        json_ui_elements = html_generator.generate_json_ui_elements()
-        if parents:
-            # there is one or more parents, replace the part of the json object with the json_ui_elements
 
-        else:
-            # the whole td is being replaced by the mapping
-            self.jsonld_td_input = json_ui_elements
-
-    def __extract_trigger_infos(self, json_ui_el, main_json_td, semantic_type, parents):
+    def __extract_trigger_infos(self, json_ui_el, main_json_td, semantic_type):
         # TODO: extract api and form infos which are necessary to generate code for trigger element
         return ''
 
@@ -199,7 +185,7 @@ class UserInterfaceGenerator:
             print("type not yet supported: {}".format(t))
             return None
 
-    def __parse_actions(self, actions, http_forms, html_generator):
+    def __parse_actions(self, jsonld_td, actions, http_forms, html_generator):
         '''
                 Heuristics for actions:
                 - no input -> simple trigger
@@ -255,17 +241,21 @@ class UserInterfaceGenerator:
             }
         }
         '''
-        overall_res = []
-        for action_name, a in actions.items():
-            input_ = a.get("input")
-            # TODO: handle output
-            # output_ = a.get("output")
-            # TODO: should different actions be put into separate <div> containers?
-            self.__map_to_input_ui_elements(action_name, input_, html_generator)
-            num_ui_elements = html_generator.get_and_reset_count()
-            if num_ui_elements > 1:
-                # trigger button necessary, because there are multiple inputs for a single action
-                html_generator.add_trigger_button(action_name, a.get("forms")[0].get('href'), "{} arguments".format(num_ui_elements))
+        semantic_type, mapping = self.__extract_semantic_type_mapping(jsonld_td)
+        if semantic_type:
+            # for now we only check for semantic types on the top level of the TD, this might be also useful on a more finegrained level, i.e. per action
+            self.__generate_ui_elements_from_semantic_type_mapping(jsonld_td, semantic_type, mapping, html_generator)
+        else:
+            for action_name, a in actions.items():
+                input_ = a.get("input")
+                # TODO: handle output
+                # output_ = a.get("output")
+                # TODO: should different actions be put into separate <div> containers?
+                self.__map_to_input_ui_elements(action_name, input_, html_generator)
+                num_ui_elements = html_generator.get_and_reset_count()
+                if num_ui_elements > 1:
+                    # trigger button necessary, because there are multiple inputs for a single action
+                    html_generator.add_trigger_button(action_name, a.get("forms")[0].get('href'), "{} arguments".format(num_ui_elements))
 
     def __parse_uri_variables(self, jsonld):
         '''
@@ -320,7 +310,7 @@ class UserInterfaceGenerator:
         '''
         for property_name, p in self.properties.items():
             for form in p.get('forms'):
-                http_forms.append(('property', Http_Form(property_name, form)))
+                http_forms.append(('property', HttpForm(property_name, form)))
             property_type = p.get('type')
             if property_type in {'array', 'string', 'number', 'integer', 'boolean'}:
                 # TODO: simple type, infer UI element for each form?
@@ -373,7 +363,7 @@ class UserInterfaceGenerator:
         '''
         for event_name, e in self.events.items():
             for form in e.get('forms'):
-                http_forms.append(('event', Http_Form(event_name, form)))
+                http_forms.append(('event', HttpForm(event_name, form)))
             event_output_type = e.get('data').get('type')
             if event_output_type in {'array', 'string', 'number', 'integer', 'boolean'}:
                 # TODO: simple type, infer UI element for each form?
