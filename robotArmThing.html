@@ -1,2 +1,18 @@
-<!DOCTYPE html><html><head><style>.container {width: fit-content; border: 2px solid;}</style></head><body><div class="container"><h4>MyRobotArm</h4><label for="x_input">X</label> <input type="number" id="x_input" name="x_input"><label for="y_input">Y</label> <input type="number" id="y_input" name="y_input"><label for="z_input">Z</label> <input type="number" id="z_input" name="z_input"><button id=move type="button" onclick="alert('endpoint=https\:\/\/robotarm.example.com\/motor1 args=(key=angle js_id=aggregationFunctionRes_0) http_method=POST, endpoint=https\:\/\/robotarm.example.com\/motor2 args=(key=angle js_id=aggregationFunctionRes_1) http_method=POST, endpoint=https\:\/\/robotarm.example.com\/motor3 args=(key=angle js_id=aggregationFunctionRes_2) http_method=POST, endpoint=https\:\/\/robotarm.example.com\/motor4 args=(key=angle js_id=aggregationFunctionRes_3) http_method=POST')">move</button></div>
-<script></script></body></html>
+<!DOCTYPE html><html><head><style>.container {width: fit-content; border: 2px solid;}</style></head><body><div class="container"><h4>MyRobotArm</h4><div><h5>angle<h5><input id="angle" type="range" min="0" max="80" value="0" class="slider" /><p>Value: <span id="angle_output" /></p></div><div><h5>angle<h5><input id="angle" type="range" min="0" max="100" value="0" class="slider" /><p>Value: <span id="angle_output" /></p></div><div><h5>angle<h5><input id="angle" type="range" min="0" max="180" value="0" class="slider" /><p>Value: <span id="angle_output" /></p></div><div><h5>angle<h5><input id="angle" type="range" min="0" max="25" value="0" class="slider" /><p>Value: <span id="angle_output" /></p></div></div>
+<script>var angle = document.getElementById("angle");
+                                var angle_output = document.getElementById("angle_output");
+                                angle_output.innerHTML = angle.value;
+                                angle.oninput = function() { angle_output.innerHTML = this.value;}
+                                angle.onchange = function() { alert('endpoint=https\:\/\/robotarm.example.com\/motor1 args=(key=angle js_id=angle) http_method=POST');}var angle = document.getElementById("angle");
+                                var angle_output = document.getElementById("angle_output");
+                                angle_output.innerHTML = angle.value;
+                                angle.oninput = function() { angle_output.innerHTML = this.value;}
+                                angle.onchange = function() { alert('endpoint=https\:\/\/robotarm.example.com\/motor2 args=(key=angle js_id=angle) http_method=POST');}var angle = document.getElementById("angle");
+                                var angle_output = document.getElementById("angle_output");
+                                angle_output.innerHTML = angle.value;
+                                angle.oninput = function() { angle_output.innerHTML = this.value;}
+                                angle.onchange = function() { alert('endpoint=https\:\/\/robotarm.example.com\/motor3 args=(key=angle js_id=angle) http_method=POST');}var angle = document.getElementById("angle");
+                                var angle_output = document.getElementById("angle_output");
+                                angle_output.innerHTML = angle.value;
+                                angle.oninput = function() { angle_output.innerHTML = this.value;}
+                                angle.onchange = function() { alert('endpoint=https\:\/\/robotarm.example.com\/motor4 args=(key=angle js_id=angle) http_method=POST');}</script></body></html>

@@ -1,4 +1,3 @@
-
 from string import Template
 class HtmlGenerator:
     html_base_template = Template('''<!DOCTYPE html><html><head>$header</head><body>$body</body></html>''')
@@ -11,12 +10,6 @@ class HtmlGenerator:
         self.html_base = Template(self.html_base_template.safe_substitute(header=self.container_style_string))
         self.html_body = ''
         self.html_script = ''
-        self.number_ui_elements = 0
-
-    def get_and_reset_count(self):
-        tmp = self.number_ui_elements
-        self.number_ui_elements = 0
-        return tmp
 
     def add_fixed_range_ordered_domain(self, id_, designator, min_, max_, current, trigger_infos = []):
         # TODO: add support to trigger action after user interaction
@@ -42,19 +35,20 @@ class HtmlGenerator:
 
     def __add_html_for_slider(self, id, title, min, max, current, trigger_infos):
         slider_template = Template('''<div><h5>$slider_title<h5><input id="$slider_id" type="range" min="$min" max="$max" value="$current" class="slider" /><p>Value: <span id="$output_id" /></p></div>''')
-        slider_script_template = Template('''var $slider_id = document.getElementById("$slider_id");
+        slider_script_str = '''var $slider_id = document.getElementById("$slider_id");
                                 var $output_id = document.getElementById("$output_id");
                                 $output_id.innerHTML = $slider_id.value;
                                 $slider_id.oninput = function() { $output_id.innerHTML = this.value;}
-                                $slider_id.onchange = function() { alert('$trigger_descr');}
-
-                                ''')
-        trigger_description = ', '.join([a.describe_http_event() for a in trigger_infos])
+                                '''
+        slider_script_template = Template(slider_script_str)
+        slider_script_template_with_trigger = Template(slider_script_str + '''$slider_id.onchange = function() { alert('$trigger_descr');}''')
+        trigger_descr = ', '.join([a.describe_http_event() for a in trigger_infos])
         self.html_body += slider_template.substitute(slider_title= title, slider_id=id, min=min, max=max, current=current, output_id=id+'_output')
-        self.html_script += slider_script_template.substitute(slider_id=id, output_id=id+'_output', trigger_descr=trigger_description)
+        if trigger_infos:
+            self.html_script += slider_script_template_with_trigger.substitute(slider_id=id, output_id=id+'_output', trigger_descr=trigger_descr)
+        else:
+            self.html_script += slider_script_template.substitute(slider_id=id, output_id=id+'_output')
 
     def __add_stateless_trigger_button(self, id, text, trigger_descr):
         button_template = Template('''<button id=$id type="button" onclick="alert('$trigger_descr')">$text</button>''')
         self.html_body += button_template.substitute(id=id, trigger_descr=trigger_descr, text=text)
-
-

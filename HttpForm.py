@@ -1,5 +1,4 @@
 import json
-
 class HttpForm:
     def __init__(self, name, jsonld_description, isAction=False):
         #print(jsonld_description)

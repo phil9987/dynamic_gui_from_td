@@ -135,9 +135,6 @@ class UserInterfaceGenerator:
         print("ERROR, semantic type could not be mapped to action input element")
         return None, None
 
-
-
-
     def __extract_http_methods(self, actions, properties, events):
         http_forms = {}
         for action_name, a in actions.items():
@@ -170,7 +167,7 @@ class UserInterfaceGenerator:
     def __extract_properties(self, jsonld_input):
         return jsonld_input.get('properties', {})
 
-    def __map_number_type_input(self, json_key, jsonld, html_generator):
+    def __map_number_type_input(self, json_key, jsonld, html_generator, trigger_info):
         # for both integer and number
         '''
             "type": "number",
@@ -180,9 +177,11 @@ class UserInterfaceGenerator:
         min_ = jsonld.get('minimum')
         max_ = jsonld.get('maximum')
         # TODO: handle case when it's not a range or only bounded to one side
-        html_generator.add_fixed_range_ordered_domain(json_key, json_key, min_, max_, min_)
+        if trigger_info:
+            trigger_info[0].add_arg(json_key, json_key)
+        html_generator.add_fixed_range_ordered_domain(json_key, json_key, min_, max_, min_, trigger_info)
 
-    def __map_object_type_input(self, jsonld, html_generator):
+    def __map_object_type_input(self, jsonld, html_generator, trigger_info):
         # recursively parse types
         '''
                 "type": "object",
@@ -203,15 +202,15 @@ class UserInterfaceGenerator:
         '''
         props = jsonld.get('properties')
         for p in props:
-            self.__map_to_input_ui_elements(p, props.get(p), html_generator)
+            self.__map_to_input_ui_elements(p, props.get(p), html_generator, trigger_info)
 
-    def __map_to_input_ui_elements(self, json_key, jsonld, html_generator):
+    def __map_to_input_ui_elements(self, json_key, jsonld, html_generator, trigger_info):
         t = jsonld.get('type')
         # TODO: also check for enum
         if t == 'object':
-            return self.__map_object_type_input(jsonld, html_generator)
+            return self.__map_object_type_input(jsonld, html_generator, trigger_info)
         elif t == 'integer' or  t == 'number':
-            return self.__map_number_type_input(json_key, jsonld, html_generator)
+            return self.__map_number_type_input(json_key, jsonld, html_generator, trigger_info)
         else:
             print("type not yet supported: {}".format(t))
             return None
@@ -282,11 +281,22 @@ class UserInterfaceGenerator:
                 # TODO: handle output
                 # output_ = a.get("output")
                 # TODO: should different actions be put into separate <div> containers?
-                self.__map_to_input_ui_elements(action_name, input_, html_generator)
-                num_ui_elements = html_generator.get_and_reset_count()
+                num_ui_elements = self.__count_ui_elements_in_action_input(input_)
+                trigger_info = [http_forms.get('action_' + action_name)] if num_ui_elements == 1 else []
+                self.__map_to_input_ui_elements(action_name, input_, html_generator, trigger_info)
                 if num_ui_elements > 1:
                     # trigger button necessary, because there are multiple inputs for a single action
-                    html_generator.add_trigger_button('action_' + action_name, action_name, (a.get("forms")[0].get('href'), "{} arguments".format(num_ui_elements)))
+                    http_form = self.http_forms.get('action_' + action_name)
+                    for key, p in input_.get('properties').items():
+                        http_form.add_arg(key, key)
+                    html_generator.add_trigger_button('action_' + action_name, action_name, [http_form])
+
+    def __count_ui_elements_in_action_input(self, jsonld):
+        if jsonld.get('type') == 'object':
+            return len(jsonld.get('properties').items())
+        else:
+            return 1
+
 
     def __parse_uri_variables(self, jsonld):
         '''
@@ -405,7 +415,9 @@ class UserInterfaceGenerator:
 
 
 def main():
-    ui_generator = UserInterfaceGenerator('./Mappings.json')
+    #ui_generator = UserInterfaceGenerator('./Mappings.json')
+    ui_generator = UserInterfaceGenerator()
+
     with open('./lampThing.html', 'w') as f:
         f.write(ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json'))
     with open('./robotArmThing.html', 'w') as f:
