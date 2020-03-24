@@ -2,6 +2,7 @@
     "mapping":
         [
             {
+                "@contect": "https://example.org/contexts/mapping.jsonld",
                 "targetTypes": ["example:LampDimmer"],
                 "title": "dim",
                 "triggerElement": "dimmer",
@@ -17,6 +18,7 @@
                 "to": ["example:dimTarget"]
             },
             {
+                "@contect": "https://example.org/contexts/mapping.jsonld",
                 "targetTypes": ["example:RollerShutter", "saref:RollerShutter"],
                 "title": "Move up/down",
                 "triggerElement": "moveUpDown",
@@ -30,6 +32,7 @@
                 "to": ["example:RollerShutterUp", "example:RollerShutterDown"]
             },
             {
+                "@contect": "https://example.org/contexts/mapping.jsonld",
                 "targetTypes": ["example:RobotArmErgoJr"],
                 "title": "set target coordinates x/y/z",
                 "triggerElement": "trigger",
