@@ -415,8 +415,8 @@ class UserInterfaceGenerator:
 
 
 def main():
-    #ui_generator = UserInterfaceGenerator('./Mappings.json')
-    ui_generator = UserInterfaceGenerator()
+    ui_generator = UserInterfaceGenerator('./Mappings.json')
+    #ui_generator = UserInterfaceGenerator()
 
     with open('./lampThing.html', 'w') as f:
         f.write(ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json'))
