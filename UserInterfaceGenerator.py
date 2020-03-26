@@ -334,22 +334,14 @@ class UserInterfaceGenerator:
             "minItems": 3,
             "maxItems": 3
         '''
-        data_description = self.__extract_data_description(jsonld.get("items"))
-        minItems = jsonld.get("minItems")
-        maxItems = jsonld.get("maxItems")
-        if minItems and maxItems and minItems == maxItems:
-            # a fixed number of elements
-            data_description["num_elements"] = minItems
-        elif minItems and maxItems:
-            data_description["num_elements"] = "min{}_max{}".format(minItems, maxItems)
         # TODO: complete implementation, array type is omitted for the PoC
 
-    def __map_properties_to_ui_elements(self, http_forms):
+    def __map_properties_to_ui_elements(self, properties, http_forms):
         '''
             According to w3c standard: "Property instances are also instances of the class DataSchema.
             Therefore, it can contain the type, unit, readOnly and writeOnly members, among others."
         '''
-        for property_name, p in self.properties.items():
+        for property_name, p in properties.items():
             property_type = p.get('type')
             if property_type in {'array', 'string', 'number', 'integer', 'boolean'}:
                 # TODO: simple type, infer UI element for each form?
@@ -361,7 +353,7 @@ class UserInterfaceGenerator:
                 # TODO: define what happens here
                 print("property of type null...")
 
-    def __map_events_to_ui_elements(self, http_forms):
+    def __map_events_to_ui_elements(self, events, http_forms):
         '''
             subscription (optional): Defines data that needs to be passed upon subscription.
             data (optional): Defines the data schema of the Event instance messages pushed by the Thing.
@@ -400,7 +392,7 @@ class UserInterfaceGenerator:
                 }
             },
         '''
-        for event_name, e in self.events.items():
+        for event_name, e in events.items():
             event_output_type = e.get('data').get('type')
             if event_output_type in {'array', 'string', 'number', 'integer', 'boolean'}:
                 # TODO: simple type, infer UI element for each form?
@@ -415,12 +407,12 @@ class UserInterfaceGenerator:
 
 
 def main():
-    ui_generator = UserInterfaceGenerator('./Mappings.json')
-    #ui_generator = UserInterfaceGenerator()
+    #ui_generator = UserInterfaceGenerator('./Mappings.json')
+    ui_generator = UserInterfaceGenerator()
 
-    with open('./lampThing.html', 'w') as f:
+    with open('./lampThing_nosemantictype.html', 'w') as f:
         f.write(ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json'))
-    with open('./robotArmThing.html', 'w') as f:
+    with open('./robotArmThing_nosemantictype.html', 'w') as f:
         f.write(ui_generator.generate_html_ui_from_file('./tds/poppyErgoJr_RobotArm_TD.json'))
 
 if __name__== "__main__":
