@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head><style>.container {width: fit-content; border: 2px solid;}</style></head><body><div class="container"><h4>MyRobotArm</h4><div><h5>angle1<h5><input id="angle1" type="range" min="0" max="80" value="0" class="slider" /><p>Value: <span id="angle1_output" /></p></div><div><h5>angle2<h5><input id="angle2" type="range" min="0" max="100" value="0" class="slider" /><p>Value: <span id="angle2_output" /></p></div><div><h5>angle3<h5><input id="angle3" type="range" min="0" max="180" value="0" class="slider" /><p>Value: <span id="angle3_output" /></p></div><div><h5>angle4<h5><input id="angle4" type="range" min="0" max="25" value="0" class="slider" /><p>Value: <span id="angle4_output" /></p></div><div><h5>angle5<h5><input id="angle5" type="range" min="0" max="25" value="0" class="slider" /><p>Value: <span id="angle5_output" /></p></div><div><h5>angle6<h5><input id="angle6" type="range" min="0" max="25" value="0" class="slider" /><p>Value: <span id="angle6_output" /></p></div></div>
-<script>;var angle1 = document.getElementById("angle1");
+<script>var angle1 = document.getElementById("angle1");
                                 var angle1_output = document.getElementById("angle1_output");
                                 angle1_output.innerHTML = angle1.value;
                                 angle1.oninput = function() { angle1_output.innerHTML = this.value;};
@@ -23,4 +23,4 @@
                                 var angle6_output = document.getElementById("angle6_output");
                                 angle6_output.innerHTML = angle6.value;
                                 angle6.oninput = function() { angle6_output.innerHTML = this.value;};
-                                angle6.onchange = function() { alert('endpoint=https\:\/\/robotarm.example.com\/motor6 args=(key=angle6 js_id=angle6) http_method=POST');}</script></body></html>
+                                angle6.onchange = function() { alert('endpoint=https\:\/\/robotarm.example.com\/motor6 args=(key=angle6 js_id=angle6) http_method=POST');};</script></body></html>
