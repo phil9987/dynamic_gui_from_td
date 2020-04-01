@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head><style>.container {width: fit-content; border: 2px solid;}</style></head><body><div class="container"><h4>MyLampThing</h4><div><h5>dim<h5><input id="dimmer" type="range" min="0" max="100" value="0" class="slider" /><p>Value: <span id="dimmer_output" /></p></div></div>
-<script>var dimmer = document.getElementById("dimmer");
+<script>;var dimmer = document.getElementById("dimmer");
                                 var dimmer_output = document.getElementById("dimmer_output");
                                 dimmer_output.innerHTML = dimmer.value;
-                                dimmer.oninput = function() { dimmer_output.innerHTML = this.value;}
+                                dimmer.oninput = function() { dimmer_output.innerHTML = this.value;};
                                 dimmer.onchange = function() { alert('endpoint=https\:\/\/mylamp.example.com\/dim args=(key=to js_id=dimmer) http_method=POST');}</script></body></html>

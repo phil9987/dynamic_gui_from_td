@@ -35,14 +35,15 @@ class HtmlGenerator:
 
     def __add_html_for_slider(self, id, title, min, max, current, trigger_infos):
         slider_template = Template('''<div><h5>$slider_title<h5><input id="$slider_id" type="range" min="$min" max="$max" value="$current" class="slider" /><p>Value: <span id="$output_id" /></p></div>''')
-        slider_script_str = '''var $slider_id = document.getElementById("$slider_id");
+        slider_script_str = ''';var $slider_id = document.getElementById("$slider_id");
                                 var $output_id = document.getElementById("$output_id");
                                 $output_id.innerHTML = $slider_id.value;
-                                $slider_id.oninput = function() { $output_id.innerHTML = this.value;}
+                                $slider_id.oninput = function() { $output_id.innerHTML = this.value;};
                                 '''
         slider_script_template = Template(slider_script_str)
         slider_script_template_with_trigger = Template(slider_script_str + '''$slider_id.onchange = function() { alert('$trigger_descr');}''')
         trigger_descr = ', '.join([a.describe_http_event() for a in trigger_infos])
+        print(trigger_descr)
         self.html_body += slider_template.substitute(slider_title= title, slider_id=id, min=min, max=max, current=current, output_id=id+'_output')
         if trigger_infos:
             self.html_script += slider_script_template_with_trigger.substitute(slider_id=id, output_id=id+'_output', trigger_descr=trigger_descr)

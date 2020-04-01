@@ -105,14 +105,14 @@ class UserInterfaceGenerator:
     def __extract_trigger_infos(self, mapping, main_json_td, semantic_type):
         # TODO: also consider output elements, currently this assumes that the mapping only maps to input elements, i.e. the semantic types are always in 'to'
         iris = []
+        aggregationFunction = mapping.get('aggregationFunction')
         for i, t in enumerate(mapping.get('to')):
             arg, iri = self.__find_semantic_type_infos_in_action_input(t, main_json_td)
-            if mapping.get('aggregationFunction'):
-                ''
+            if aggregationFunction:
                 # TODO: add aggregation function info
                 from_type = 'aggregationFunctionRes_{}'.format(i)
             else:
-                # 'from' maps 1:1 to 'to'
+                # 'from' maps 1:1 to 'to' if no aggregation function is provided
                 from_type = mapping.get('from')[i]
             iri.add_arg(arg, from_type)
             iris.append(iri)
@@ -407,13 +407,19 @@ class UserInterfaceGenerator:
 
 
 def main():
-    #ui_generator = UserInterfaceGenerator('./Mappings.json')
     ui_generator = UserInterfaceGenerator()
 
     with open('./lampThing_nosemantictype.html', 'w') as f:
         f.write(ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json'))
     with open('./robotArmThing_nosemantictype.html', 'w') as f:
         f.write(ui_generator.generate_html_ui_from_file('./tds/poppyErgoJr_RobotArm_TD.json'))
+
+    ui_generator = UserInterfaceGenerator('./Mappings.json')
+    with open('./lampThing.html', 'w') as f:
+        f.write(ui_generator.generate_html_ui_from_file('./tds/lampThingSampleTD.json'))
+    with open('./robotArmThing.html', 'w') as f:
+        f.write(ui_generator.generate_html_ui_from_file('./tds/poppyErgoJr_RobotArm_TD.json'))
+
 
 if __name__== "__main__":
     main()

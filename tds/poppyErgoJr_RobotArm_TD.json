@@ -11,7 +11,7 @@
             "input": {
                 "type": "object",
                 "properties": {
-                    "angle":{
+                    "angle1":{
                         "type": "number",
                         "minimum": 0,
                         "maximum": 80
@@ -27,7 +27,7 @@
             "input": {
                 "type": "object",
                 "properties": {
-                    "angle":{
+                    "angle2":{
                         "type": "number",
                         "minimum": 0,
                         "maximum": 100
@@ -43,7 +43,7 @@
             "input": {
                 "type": "object",
                 "properties": {
-                    "angle":{
+                    "angle3":{
                         "type": "number",
                         "minimum": 0,
                         "maximum": 180
@@ -59,7 +59,7 @@
             "input": {
                 "type": "object",
                 "properties": {
-                    "angle":{
+                    "angle4":{
                         "type": "number",
                         "minimum": 0,
                         "maximum": 25
@@ -70,6 +70,41 @@
             "forms": [{
                 "href": "https://robotarm.example.com/motor4"
             }]
+        },
+        "set_joint5_angle": {
+            "@type": "example:RobotArmErgoJrJoint5",
+            "input": {
+                "type": "object",
+                "properties": {
+                    "angle5":{
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 25
+                    }
+                }
+
+            },
+            "forms": [{
+                "href": "https://robotarm.example.com/motor5"
+            }]
+        },
+        "set_joint6_angle": {
+            "@type": "example:RobotArmErgoJrJoint6",
+            "input": {
+                "type": "object",
+                "properties": {
+                    "angle6":{
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 25
+                    }
+                }
+
+            },
+            "forms": [{
+                "href": "https://robotarm.example.com/motor6"
+            }]
         }
+
     }
 }

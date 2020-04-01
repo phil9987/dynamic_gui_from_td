@@ -1,0 +1,14 @@
+#
+# Compute the day of a date
+# http://fr.wikipedia.org/wiki/Détermination_du_jour
+#
+# Philip Junker - Inverse Kinematics for Poppy Ergo Jr
+#
+# prefix xt: <http://ns.inria.fr/sparql-extension/>
+# prefix util: <http://http://lvh.me:8000/example.ldscript.txt#>
+
+@public {
+    function util:inverse_kinematics(?X, ?Y, ?Z) {
+        xt:list(11, 22, 33, 44, 55, 66)
+    }
+}
