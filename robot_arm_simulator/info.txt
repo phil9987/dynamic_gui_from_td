@@ -10,7 +10,12 @@ python -m SimpleHTTPServer
 
 REST API in api.txt
 
-via python:
+via python2 :
+installation
+pip2 install numpy scipy notebook jupyter matplotlib
+pip install poppy-ergo-jr
+
+
 from pypot.creatures import PoppyErgoJr
 robot = PoppyErgoJr(simulator='poppy-simu', http_port=8088)
 robot.dance.start()

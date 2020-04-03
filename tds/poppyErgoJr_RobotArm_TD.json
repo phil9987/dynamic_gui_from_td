@@ -1,110 +1,95 @@
 {
-    "@context": [
-        "https://www.w3.org/2019/wot/td/v1"
-        ],
-    "id": "robotarm1",
-    "title": "MyRobotArm",
-    "@type": "example:RobotArmErgoJr",
-    "actions": {
-        "set_joint1_angle": {
-            "@type": "example:RobotArmErgoJrJoint1",
-            "input": {
-                "type": "object",
-                "properties": {
-                    "angle1":{
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 80
-                    }
-                }
-            },
-            "forms": [{
-                "href": "https://robotarm.example.com/motor1"
-            }]
-        },
-        "set_joint2_angle": {
-            "@type": "example:RobotArmErgoJrJoint2",
-            "input": {
-                "type": "object",
-                "properties": {
-                    "angle2":{
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 100
-                    }
-                }
-            },
-            "forms": [{
-                "href": "https://robotarm.example.com/motor2"
-            }]
-        },
-        "set_joint3_angle": {
-            "@type": "example:RobotArmErgoJrJoint3",
-            "input": {
-                "type": "object",
-                "properties": {
-                    "angle3":{
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 180
-                    }
-                }
-            },
-            "forms": [{
-                "href": "https://robotarm.example.com/motor3"
-            }]
-        },
-        "set_joint4_angle": {
-            "@type": "example:RobotArmErgoJrJoint4",
-            "input": {
-                "type": "object",
-                "properties": {
-                    "angle4":{
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 25
-                    }
-                }
-
-            },
-            "forms": [{
-                "href": "https://robotarm.example.com/motor4"
-            }]
-        },
-        "set_joint5_angle": {
-            "@type": "example:RobotArmErgoJrJoint5",
-            "input": {
-                "type": "object",
-                "properties": {
-                    "angle5":{
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 25
-                    }
-                }
-
-            },
-            "forms": [{
-                "href": "https://robotarm.example.com/motor5"
-            }]
-        },
-        "set_joint6_angle": {
-            "@type": "example:RobotArmErgoJrJoint6",
-            "input": {
-                "type": "object",
-                "properties": {
-                    "angle6":{
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 25
-                    }
-                }
-
-            },
-            "forms": [{
-                "href": "https://robotarm.example.com/motor6"
-            }]
+  "@context": [
+    "https://www.w3.org/2019/wot/td/v1",
+    {"example": "http://example.org"}
+    ],
+  "id": "robotarm1",
+  "title": "MyRobotArm",
+  "@type": "example:RobotArmErgoJr",
+  "actions": {
+    "set_joint1_angle": {
+      "@type": "example:RobotArmErgoJrJoint1",
+      "input": {
+        "type": "object",
+        "properties": {
+          "angle1":{
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          }
         }
-
+      },
+      "forms": [{"href": "http://127.0.0.1:8088/motor/m1/register/goal_position/value.json"}]
+    },
+    "set_joint2_angle": {
+      "@type": "example:RobotArmErgoJrJoint2",
+      "input": {
+        "type": "object",
+        "properties": {
+          "angle2":{
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          }
+        }
+      },
+      "forms": [{"href": "http://127.0.0.1:8088/motor/m2/register/goal_position/value.json"}]
+    },
+    "set_joint3_angle": {
+      "@type": "example:RobotArmErgoJrJoint3",
+      "input": {
+        "type": "object",
+        "properties": {
+          "angle3":{
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          }
+        }
+      },
+      "forms": [{"href": "http://127.0.0.1:8088/motor/m3/register/goal_position/value.json"}]
+    },
+    "set_joint4_angle": {
+      "@type": "example:RobotArmErgoJrJoint4",
+      "input": {
+        "type": "object",
+        "properties": {
+          "angle4":{
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          }
+        }
+      },
+      "forms": [{"href": "http://127.0.0.1:8088/motor/m4/register/goal_position/value.json"}]
+    },
+    "set_joint5_angle": {
+      "@type": "example:RobotArmErgoJrJoint5",
+      "input": {
+        "type": "object",
+        "properties": {
+          "angle5":{
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          }
+        }
+      },
+      "forms": [{"href": "http://127.0.0.1:8088/motor/m5/register/goal_position/value.json"}]
+    },
+    "set_joint6_angle": {
+      "@type": "example:RobotArmErgoJrJoint6",
+      "input": {
+        "type": "object",
+        "properties": {
+          "angle6":{
+            "type": "number",
+            "minimum": -120,
+            "maximum": 120
+          }
+        }
+      },
+      "forms": [{"href": "http://127.0.0.1:8088/motor/m6/register/goal_position/value.json"}]
     }
+  }
 }
