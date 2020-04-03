@@ -1,0 +1,6 @@
+[submodule "corese"]
+	path = corese
+	url = https://github.com/Wimmics/corese.git
+[submodule "dynamic_gui_backend"]
+	path = dynamic_gui_backend
+	url = https://github.com/phil9987/dynamic_gui_backend.git
